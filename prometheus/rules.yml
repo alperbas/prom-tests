@@ -1,0 +1,19 @@
+# Some example rules
+groups:
+- name: rules
+  rules:
+    # Recording rules
+    - record: true_load1
+      expr: node_load1 / count(count(node_cpu_seconds_total) without(mode)) without (cpu)
+
+    # Alert rules
+    - alert: InstanceDown
+      expr: up == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        description: '{{ $labels.instance }} has been down for more than 5 minutes.'
+        fixed: '{{ $labels.instance }} is reachable again.'
+        summary: 'Instance {{ $labels.instance }} is down.'
+      

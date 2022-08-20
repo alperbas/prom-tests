@@ -1,0 +1,38 @@
+version: '2'
+services:
+  prom:
+    container_name: prom
+    image: prom/prometheus
+    restart: unless-stopped
+    hostname: prom
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/data'
+      - '--storage.tsdb.retention=2160h' #90 days
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules.yml:/etc/prometheus/rules.yml:ro
+      - ./prometheus/data:/data:rw
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/hosts:/etc/hosts:ro
+    user: 1000:9090
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    restart: unless-stopped
+    hostname: grafana
+    volumes:
+      - ./grafana/grafana.db:/var/lib/grafana/grafana.db:rw
+      - /etc/localtime:/etc/localtime:ro
+
+  nginx:
+    container_name: nginx
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    hostname: nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/add.conf:ro
+      - /etc/localtime:/etc/localtime:ro
